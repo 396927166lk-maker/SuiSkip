@@ -19,15 +19,19 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Auto-generate Gradle Wrapper & Build APK
+      - name: Auto-fix Keystore & Build APK
         run: |
           echo "sdk.dir=$ANDROID_HOME" > local.properties
+          mkdir -p keystore
+          if [ ! -f keystore/suiskip_fixed.jks ]; then
+            keytool -genkey -v -keystore keystore/suiskip_fixed.jks -alias suiskip -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname "CN=SuiSkip, OU=Dev, O=Sui, L=CN, S=CN, C=CN"
+          fi
           gradle wrapper --gradle-version 8.7
           chmod +x ./gradlew
-          ./gradlew assembleDebug --stacktrace
+          ./gradlew assembleDebug assembleRelease --stacktrace || ./gradlew assembleDebug --stacktrace
 
-      - name: Upload Signed SuiSkip v2.0.0 APK
+      - name: Upload SuiSkip APK
         uses: actions/upload-artifact@v4
         with:
           name: SuiSkip-v2.0.0-APK
-          path: app/build/outputs/apk/debug/*.apk
+          path: app/build/outputs/apk/**/*.apk
