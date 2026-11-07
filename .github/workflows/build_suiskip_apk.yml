@@ -19,13 +19,12 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Prepare Build Environment
+      - name: Auto-generate Gradle Wrapper & Build APK
         run: |
           echo "sdk.dir=$ANDROID_HOME" > local.properties
+          gradle wrapper --gradle-version 8.7
           chmod +x ./gradlew
-
-      - name: Build Signed Release APK (com.sui.skip v2.0.0)
-        run: ./gradlew assembleRelease --stacktrace
+          ./gradlew assembleRelease --stacktrace
 
       - name: Upload Signed SuiSkip v2.0.0 APK
         uses: actions/upload-artifact@v4
