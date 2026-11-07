@@ -1,4 +1,4 @@
-name: Build Fixed-Signed SuiSkip APK
+name: Build SuiSkip APK
 
 on:
   push:
@@ -19,15 +19,15 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Build with Gradle Wrapper
+      - name: Build APK with Gradle
         run: |
           echo "sdk.dir=$ANDROID_HOME" > local.properties
           gradle wrapper --gradle-version 8.7
           chmod +x ./gradlew
-          ./gradlew assembleRelease --stacktrace
+          ./gradlew assembleDebug --stacktrace
 
-      - name: Upload Signed SuiSkip v2.0.0 APK
+      - name: Upload SuiSkip APK
         uses: actions/upload-artifact@v4
         with:
-          name: SuiSkip-v2.0.0-Signed-Release-APK
-          path: app/build/outputs/apk/release/*.apk
+          name: SuiSkip-v2.0.0-APK
+          path: app/build/outputs/apk/debug/*.apk
