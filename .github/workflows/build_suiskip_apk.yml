@@ -13,30 +13,21 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
 
-      - name: Prepare Android & Gradle Environment
+      - name: Auto-generate Gradle Wrapper & Build APK
         run: |
           echo "sdk.dir=$ANDROID_HOME" > local.properties
           gradle wrapper --gradle-version 8.7
           chmod +x ./gradlew
+          ./gradlew assembleDebug --stacktrace
 
-      - name: Build SuiSkip APK
-        run: |
-          if [ -d "keystore" ] && [ -f "keystore/suiskip_fixed.jks" ]; then
-            echo "Keystore detected! Building signed Release APK..."
-            ./gradlew assembleRelease --stacktrace
-          else
-            echo "Keystore not found, building Assemble to ensure APK generation..."
-            ./gradlew assemble --stacktrace
-          fi
-
-      - name: Upload SuiSkip APK
+      - name: Upload Signed SuiSkip v2.0.0 APK
         uses: actions/upload-artifact@v4
         with:
           name: SuiSkip-v2.0.0-APK
-          path: app/build/outputs/apk/**/*.apk
+          path: app/build/outputs/apk/debug/*.apk
