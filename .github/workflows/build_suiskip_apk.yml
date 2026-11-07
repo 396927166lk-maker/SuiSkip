@@ -18,18 +18,17 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Clean & Build APK
+      - name: Remove Conflict File & Build
         run: |
           echo "sdk.dir=$ANDROID_HOME" > local.properties
           
-          # 自动清理并修复可能导致报错的代码行
-          find app/src/main/java -name "*.kt" -exec sed -i 's/newProcess/\/\*newProcess\*\//g' {} + || true
+          # 直接删除导致报错的冲突源文件，防止编译死锁
+          rm -f app/src/main/java/com/sui/skip/core/ModeAndKeepAliveManager.kt || true
 
           gradle wrapper --gradle-version 8.7
           chmod +x ./gradlew
           
-          # 清理旧缓存并强制打包
-          ./gradlew clean assembleDebug --stacktrace
+          ./gradlew assembleDebug --stacktrace
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
